@@ -46,7 +46,7 @@ async def enter_phone(message: Message, state: FSMContext):
 @router.message(Command('open_the_door'))
 async def handlers_open_door(message: Message):
     telephones = await get_all_telephones()
-    if TELEPHONE not in telephones:
+    if int(TELEPHONE) not in telephones:
         await message.answer('данный пользователь не может открывать дверь, т.к. он не является одобренным')
     else:
         await open_the_door()
@@ -56,7 +56,7 @@ async def handlers_open_door(message: Message):
 @router.message(Command('check_photo'))
 async def handlers_check_photo(message: Message):
     telephones = await get_all_telephones()
-    if TELEPHONE not in telephones:
+    if int(TELEPHONE) not in telephones:
         await message.answer('данный пользователь не может просматривать фото с домофона'
                              ', т.к. он не является одобренным')
     else:

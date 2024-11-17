@@ -1,9 +1,8 @@
 import aiohttp, asyncio
 
-from config import TELEPHONE, SECRET_KEY
+from bot.config import TELEPHONE, SECRET_KEY
 
 BASE_URL = "https://domo-dev.profintel.ru/tg-bot"
-
 
 
 HEADERS = {
