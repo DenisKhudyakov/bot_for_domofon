@@ -1,6 +1,6 @@
 import aiohttp, asyncio
 
-from bot.config import TELEPHONE, SECRET_KEY
+from bot.config import SECRET_KEY
 
 BASE_URL = "https://domo-dev.profintel.ru/tg-bot"
 
@@ -39,26 +39,26 @@ async def fetch_json(session, url, headers=None, params=None, method='GET'):
             return await response.json()
 
 
-async def get_id():
+async def get_id(telephone):
     """
     Функция получение номера ID жильца в системе по его номеру телефона
     :return:
     """
     data = {
-        'phone': TELEPHONE,
+        'phone': telephone,
     }
     url_for_id = BASE_URL + '/check-tenant'
     response = await fetch_json(url=url_for_id, headers=HEADERS, params=data, method='POST')
     return response.get('tenant_id')
 
 
-async def get_float():
+async def get_float(telephone):
     """
     Получение списка квартир, в которых состоит жилец
     :param tenant_id: ID жильца
     :return:
     """
-    tenant_id = await get_id()
+    tenant_id = await get_id(telephone)
     if not tenant_id:
         raise ValueError("Не удалось получить tenant_id.")
 
@@ -69,34 +69,34 @@ async def get_float():
     return response[0]['id']
 
 
-async def get_photo():
+async def get_photo(telephone):
     """Получение фото по ID домофона"""
-    domofon_id = await get_domofon_id()
+    domofon_id = await get_domofon_id(telephone)
     data_domofon_foto = {
         "intercoms_id": [domofon_id],
         "media_type": ["JPEG"]
     }
-    tenant_id = await get_id()
+    tenant_id = await get_id(telephone)
     url_for_photo = BASE_URL + f'/domo.domofon/urlsOnType?tenant_id={tenant_id}'
     response = await fetch_json(url=url_for_photo, headers=HEADERS, params=data_domofon_foto, method='POST')
     return response[0]['jpeg']
 
 
-async def get_domofon_id():
+async def get_domofon_id(telephone):
     """
     Получение ID домофона
     :return:
     """
-    tenant_id = await get_id()
-    apartment_id = await get_float()
+    tenant_id = await get_id(telephone)
+    apartment_id = await get_float(telephone)
     url_for_domofon_id = BASE_URL + f'/domo.apartment/{apartment_id}/domofon?tenant_id={tenant_id}'
     response = await fetch_json(url=url_for_domofon_id, headers=HEADERS, method='GET')
     return response[0]['id']
 
 
-async def open_the_door():
-    tenant_id = await get_id()
-    domofon_id = await get_domofon_id()
+async def open_the_door(telephone):
+    tenant_id = await get_id(telephone)
+    domofon_id = await get_domofon_id(telephone)
     data = {
       "door_id": 0
     }

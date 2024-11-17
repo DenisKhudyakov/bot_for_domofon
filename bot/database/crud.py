@@ -1,6 +1,6 @@
 import asyncio
 
-from sqlalchemy import delete, select, distinct
+from sqlalchemy import delete, select, distinct, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.database.models import User
@@ -23,9 +23,30 @@ async def get_all_telephones(session: AsyncSession):
     return telephones
 
 
-async def main():
-    telephones = await get_all_telephones()
-    print(f"Список телефонов пользователей: {telephones}")
+@connections
+async def get_telephone(session: AsyncSession, name: str) -> str:
+    """
+    Функция получения телефона по имени
+    :param session:
+    :param name:
+    :return:
+    """
+    result = await session.execute(select(User.telephone).where(User.username == name))
+    return result.scalar()
 
-# Запуск функции
-asyncio.run(main())
+
+@connections
+async def clear_database(session: AsyncSession) -> None:
+    """
+    Функция для очистки базы данных (удаление всех данных из всех таблиц).
+
+    :param session: Асинхронная сессия SQLAlchemy.
+    """
+    try:
+        await session.execute(delete(User))
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        print(f"Ошибка при очистке таблицы Product: {e}")
+
+

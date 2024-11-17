@@ -10,6 +10,7 @@ dp = Dispatcher()
 
 async def start_bot():
     await init_database()
+    print("База данных инициализирована")
 
 
 async def main():
